@@ -112,19 +112,34 @@ ANALYZE_EVERY_N_EVENTS=1
 
 До `MIN_WINDOW_SIZE` статус считается `insufficient_data`
 
+## Prerequisites
+
+При проверке и запуске обязательны:
+
+- Docker Desktop на Windows/macOS или Docker Engine на Linux
+- Docker Compose v2
+- Python 3.12+ только для локальной проверки Python-кода
+
+Проверить Docker:
+
+```bash
+docker --version
+docker compose version
+```
+
 ## Запуск
 
-Нужны Docker Desktop или Docker Engine и Docker Compose v2
+Все команды Docker ниже одинаковы для Windows, macOS и Linux
 
 Из корневой папки проекта:
 
-```powershell
+```bash
 docker compose up --build -d
 ```
 
 Проверить контейнеры:
 
-```powershell
+```bash
 docker compose ps
 ```
 
@@ -145,7 +160,7 @@ prometheus       Up
 
 Проверить topic:
 
-```powershell
+```bash
 docker compose exec kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:19092 --list
 ```
 
@@ -157,9 +172,15 @@ features-stream
 
 Посмотреть логи producer и consumer:
 
-```powershell
+```bash
 docker compose logs --tail=50 drift-producer
 docker compose logs --tail=50 drift-consumer
+```
+
+Для просмотра логов в реальном времени:
+
+```bash
+docker compose logs -f drift-producer drift-consumer
 ```
 
 ## Проверка Prometheus exporter
@@ -243,25 +264,37 @@ drift_stream_status
 
 ## Проверка Python-кода
 
-Создать окружение и установить зависимости:
+Создать виртуальное окружение:
+
+### Windows PowerShell
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Проверить стиль и синтаксис:
+### macOS / Linux
 
-```powershell
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Проверить стиль и синтаксис кода:
+
+```bash
 ruff check src
 ruff format --check src
 python -m compileall -q src
 ```
 
-Проверить Compose:
+Проверить Docker Compose:
 
-```powershell
+```bash
 docker compose config
 docker compose up --build -d
 docker compose ps
@@ -295,6 +328,6 @@ Prometheus не дублируется как обычная feature
 
 ## Остановка
 
-```powershell
+```bash
 docker compose down --remove-orphans
 ```
